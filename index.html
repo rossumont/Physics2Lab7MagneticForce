@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Magnetic Force Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0B1A2B;--ink:#EDE8DC;--mut:#8C9AAB;--g:#7FD4A8;--a:#E8B23A;--line:rgba(237,232,220,.16);--panel:#0F2236}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background-color:var(--bg);background-image:linear-gradient(rgba(127,212,168,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(127,212,168,.05) 1px,transparent 1px);background-size:28px 28px;color:var(--ink);font-family:'IBM Plex Sans Thai',system-ui,-apple-system,sans-serif;height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden;-webkit-tap-highlight-color:transparent}
+.mono{font-family:'JetBrains Mono',ui-monospace,Menlo,monospace}
+button{font:inherit;color:inherit;cursor:pointer}
+header{display:flex;align-items:center;gap:10px;padding:10px 16px 8px;border-bottom:1px solid var(--line)}
+header .t{flex:1;min-width:0}
+h1{font-size:clamp(16px,2.4vw,22px);font-weight:700;line-height:1.25}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.hb{border:1px solid var(--line);background:transparent;border-radius:8px;padding:6px 12px;font-size:14px;flex:none}
+.hb:hover{border-color:var(--g)}
+#stage{flex:1;min-height:0;position:relative}
+#stage svg{width:100%;height:100%;display:block}
+.chips{display:flex;gap:8px;align-items:center;padding:5px 16px;overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chips .lbl{color:var(--mut);font-size:12px;flex:none;min-width:64px}
+.chip{border:1.5px solid var(--line);background:rgba(255,255,255,.03);border-radius:999px;padding:6px 14px;font-family:'JetBrains Mono',monospace;font-size:14px;flex:none}
+.chip.on{border-color:var(--g);color:var(--g);background:rgba(127,212,168,.1)}
+.chips.amber .chip.on{border-color:var(--a);color:var(--a);background:rgba(232,178,58,.1)}
+#iSl{flex:1;min-width:160px;-webkit-appearance:none;appearance:none;height:34px;background:transparent;touch-action:none}
+#iSl::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--a) var(--p,0%),rgba(237,232,220,.18) var(--p,0%))}
+#iSl::-moz-range-track{height:6px;border-radius:3px;background:rgba(237,232,220,.18)}
+#iSl::-moz-range-progress{height:6px;border-radius:3px;background:var(--a)}
+#iSl::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:var(--a);border:3px solid #0B1A2B;margin-top:-11px;box-shadow:0 0 0 1.5px var(--a)}
+#iSl::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:var(--a);border:3px solid #0B1A2B}
+.sep{width:1px;height:22px;background:var(--line);flex:none;margin:0 4px}
+.dock{padding:6px 12px 4px;display:flex;justify-content:center}
+.bar{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:8px 12px;box-shadow:0 8px 24px rgba(0,0,0,.45)}
+.act{white-space:nowrap;border:1.5px solid var(--line);background:transparent;border-radius:10px;padding:8px 12px;font-size:14px;font-family:'JetBrains Mono',monospace}
+.act.on{border-color:var(--a);color:var(--a);background:rgba(232,178,58,.12)}
+.clock{font-family:'JetBrains Mono',monospace;font-size:clamp(22px,4vw,30px);font-weight:600;min-width:7.2ch;text-align:center;letter-spacing:.5px}
+.go{width:46px;height:46px;border-radius:50%;border:none;background:var(--g);color:#0B1A2B;font-size:18px;font-weight:700}
+.go.run{background:var(--a)}
+.rs{width:46px;height:46px;border-radius:50%;border:1.5px solid var(--line);background:transparent;font-size:20px}
+.credit{text-align:center;color:var(--mut);font-size:11px;padding:2px 10px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* modal */
+.ov{position:fixed;inset:0;background:rgba(3,10,18,.72);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.ov.show{display:flex}
+.md{background:var(--panel);border:1px solid var(--line);border-radius:14px;width:min(560px,100%);max-height:92vh;overflow:auto;padding:18px}
+.md h2{font-size:17px;margin-bottom:10px}
+.md h3{font-size:13px;color:var(--a);margin:16px 0 8px;font-weight:600}
+.md input[type=text],.md input[type=password],.md input[type=number],.md input[type=email]{background:#0B1A2B;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:7px 9px;font-family:'JetBrains Mono',monospace;font-size:14px;width:100%}
+.row{display:flex;gap:8px;align-items:center;margin:6px 0}
+.row label{flex:1;font-size:13px;color:var(--mut)}
+.row input[type=number]{width:120px;flex:none}
+.btn{border:1.5px solid var(--g);color:var(--g);background:transparent;border-radius:8px;padding:7px 14px;font-size:14px}
+.btn.a{border-color:var(--a);color:var(--a)}
+.btn.q{border-color:var(--line);color:var(--ink)}
+table{width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:13px}
+td,th{border-bottom:1px solid var(--line);padding:5px 4px;text-align:center}
+th{color:var(--mut);font-weight:400}
+td input[type=number]{width:80px!important}
+.msg{font-size:12px;margin-top:6px;min-height:16px}
+.warn{color:var(--a)}
+.ok{color:var(--g)}
+textarea{width:100%;background:#0B1A2B;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:7px;font-family:'JetBrains Mono',monospace;font-size:12px;resize:none;margin-top:6px}
+@media (max-width:560px){.bar{gap:6px;padding:6px 8px}.act{padding:7px 8px;font-size:12px}.clock{font-size:19px}.go,.rs{width:38px;height:38px;font-size:15px}.chips{padding:5px 10px}.chips .lbl{min-width:52px}}
+#flow{animation:flow .9s linear infinite}
+#flow.rev{animation-direction:reverse}
+@keyframes flow{to{stroke-dashoffset:-24}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="t">
+    <h1 data-en="Magnetic Force on a Current-Carrying Wire" data-th="แรงเนื่องจากสนามแม่เหล็กบนลวดตัวนำ"></h1>
+    <div class="sub mono">F = I L B</div>
+  </div>
+  <button class="hb mono" id="langBtn">EN / ไทย</button>
+  <button class="hb" id="tBtn" data-en="Teacher" data-th="ครู"></button>
+</header>
+
+<div id="stage">
+<svg id="svg" viewBox="0 60 1000 515" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, ui-monospace, Menlo, monospace">
+  <!-- bench -->
+  <line x1="10" y1="566" x2="990" y2="566" stroke="#2A4058" stroke-width="2"/>
+
+  <!-- clamp stand -->
+  <rect x="820" y="552" width="140" height="14" rx="3" fill="#3A4E66"/>
+  <rect x="885" y="70" width="8" height="484" fill="#8796A8"/>
+  <rect x="550" y="100" width="343" height="9" fill="#8796A8"/>
+  <rect x="872" y="94" width="34" height="22" rx="3" fill="#56687E"/>
+  <rect x="545" y="104" width="10" height="44" fill="#8796A8"/>
+
+  <!-- rheostat -->
+  <g id="rheo">
+    <rect x="34" y="262" width="220" height="44" rx="22" fill="#2B3D52" stroke="#566A82"/>
+    <g stroke="#B98A4A" stroke-width="2" id="coil"></g>
+    <rect x="34" y="250" width="220" height="5" fill="#8796A8"/>
+    <g id="slider"><rect x="-10" y="236" width="20" height="24" rx="3" fill="#E8B23A"/><rect x="-2" y="258" width="4" height="8" fill="#E8B23A"/></g>
+    <text x="144" y="330" text-anchor="middle" fill="#8C9AAB" font-size="13">R</text>
+  </g>
+
+  <!-- power supply -->
+  <rect x="30" y="392" width="224" height="170" rx="10" fill="#14283E" stroke="#3E5570" stroke-width="2"/>
+  <text x="48" y="414" fill="#8C9AAB" font-size="13">DC 5 V</text>
+  <circle id="led" cx="232" cy="410" r="6" fill="#33424F"/>
+  <rect x="48" y="424" width="188" height="56" rx="6" fill="#06110B" stroke="#2E4A3B"/>
+  <text id="amm" x="222" y="464" text-anchor="end" fill="#E8B23A" font-size="30" font-weight="600">0.00</text>
+  <text x="70" y="464" fill="#8C9AAB" font-size="16">A</text>
+  <circle cx="92" cy="530" r="12" fill="#C0392B" stroke="#7a1d14" stroke-width="2"/>
+  <circle cx="192" cy="530" r="12" fill="#222" stroke="#555" stroke-width="2"/>
+  <text x="92" y="535" text-anchor="middle" fill="#fff" font-size="14">+</text>
+  <text x="192" y="535" text-anchor="middle" fill="#fff" font-size="14">−</text>
+
+  <!-- wires -->
+  <path id="wR1" d="" fill="none" stroke="#C0392B" stroke-width="4" stroke-linecap="round"/>
+  <path id="wR2" d="" fill="none" stroke="#C0392B" stroke-width="4" stroke-linecap="round"/>
+  <path id="wB" d="" fill="none" stroke="#1d1d1d" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- balance -->
+  <rect x="330" y="472" width="440" height="92" rx="14" fill="#E8E4D6" stroke="#B9B3A0" stroke-width="2"/>
+  <rect x="345" y="486" width="410" height="64" rx="10" fill="#E3D88A"/>
+  <rect x="440" y="494" width="200" height="48" rx="6" fill="#06110B" stroke="#2E4A3B"/>
+  <text id="scaleTxt" x="612" y="530" text-anchor="end" fill="#7FD4A8" font-size="30" font-weight="600">0.00</text>
+  <text x="628" y="530" text-anchor="end" fill="#4F8A6A" font-size="12">g</text>
+  <rect x="530" y="458" width="40" height="16" fill="#9AA3AD"/>
+  <rect x="360" y="448" width="380" height="12" rx="3" fill="#C9CED4" stroke="#8C949D"/>
+
+  <!-- magnet holder: back -->
+  <rect x="392" y="330" width="316" height="118" rx="4" fill="#3A1211"/>
+  <!-- board -->
+  <g id="board"></g>
+  <!-- current flow overlay -->
+  <line id="flow" x1="0" y1="400" x2="0" y2="400" stroke="#7FD4A8" stroke-width="3" stroke-dasharray="6 18" stroke-linecap="round" opacity="0"/>
+  <!-- magnet holder: front (cut-away) -->
+  <rect x="412" y="342" width="276" height="88" fill="#B8322E" opacity=".18"/>
+  <g id="bfield" fill="none" stroke="#E8B23A" stroke-width="1.6" opacity=".75"></g>
+  <rect x="392" y="330" width="20" height="118" fill="#B8322E"/>
+  <rect x="688" y="330" width="20" height="118" fill="#B8322E"/>
+  <rect x="392" y="430" width="316" height="18" fill="#B8322E"/>
+  <rect x="392" y="330" width="316" height="118" rx="4" fill="none" stroke="#6E1A17" stroke-width="2"/>
+  <text x="680" y="324" text-anchor="end" fill="#E8B23A" font-size="15">B ⊗</text>
+</svg>
+</div>
+
+<div class="chips" id="boardChips"><span class="lbl" data-en="Board" data-th="แผงวงจร"></span></div>
+<div class="chips amber" id="rChips"><span class="lbl" data-en="Current" data-th="กระแส"></span><input type="range" id="iSl" min="0" max="1000" value="0" step="1"></div>
+
+<div class="dock">
+  <div class="bar">
+    <button class="act" id="pwrBtn">⏻ <span data-en="ON" data-th="เปิด"></span></button>
+    <button class="act" id="dirBtn"><b id="dirArr">I →</b> <span id="dirTxt" data-en="Right" data-th="ขวา"></span></button>
+  </div>
+</div>
+<div class="credit" data-en="Asst.Prof.Dr. Rossumont Jaryabhand · Rajamangala University of Technology Tawan-ok, Uthenthawai Campus · No Right Reserved" data-th="ผศ.ดร.รสสุมนต์ จารยะพันธุ์ · มหาวิทยาลัยเทคโนโลยีราชมงคลตะวันออก อุเทนถวาย · ไม่สงวนลิขสิทธิ์"></div>
+
+<!-- teacher modal -->
+<div class="ov" id="ov">
+ <div class="md">
+  <div id="lockView">
+    <h2 data-en="Teacher" data-th="ครู"></h2>
+    <input type="password" id="pwIn" autocomplete="off" placeholder="password">
+    <div class="msg warn" id="pwMsg"></div>
+    <div class="row" style="justify-content:flex-end;margin-top:10px">
+      <button class="btn q" data-close data-en="Close" data-th="ปิด"></button>
+      <button class="btn" id="pwGo" data-en="Enter" data-th="เข้า"></button>
+    </div>
+  </div>
+  <div id="tView" style="display:none">
+    <h2 data-en="Teacher" data-th="ครู"></h2>
+
+    <h3 data-en="Answer" data-th="เฉลย"></h3>
+    <div class="mono" style="font-size:15px">B = <span id="ansB" style="color:var(--g)"></span> T</div>
+    <table style="margin-top:6px"><thead><tr><th data-en="Board" data-th="แผง"></th><th>L (cm)</th><th>LB (N/A)</th><th data-en="Δm now (g)" data-th="Δm ขณะนี้ (g)"></th></tr></thead><tbody id="ansT"></tbody></table>
+
+    <h3 data-en="Settings" data-th="ตั้งค่า"></h3>
+    <div class="row"><label>B (T)</label><input type="number" id="sB" step="0.0001"><button class="btn q" id="rndB">🎲</button></div>
+    <div class="row"><label data-en="Magnet mass (g)" data-th="มวลแท่งแม่เหล็ก (g)"></label><input type="number" id="sM" step="0.01"></div>
+    <div class="row"><label data-en="Reading noise" data-th="ค่าแกว่งของเครื่องชั่ง"></label><input type="checkbox" id="sN" style="width:20px;height:20px"></div>
+    <table style="margin-top:6px"><thead><tr><th data-en="Board" data-th="แผง"></th><th>L (cm)</th><th data-en="Hide L" data-th="ซ่อน L"></th></tr></thead><tbody id="setT"></tbody></table>
+    <div class="row" style="justify-content:flex-end;margin-top:10px"><button class="btn" id="applyBtn" data-en="Apply" data-th="ใช้ค่านี้"></button></div>
+
+    <h3 data-en="Student link" data-th="ลิงก์นักศึกษา"></h3>
+    <button class="btn a" id="linkBtn" data-en="Create & copy link" data-th="สร้างและคัดลอกลิงก์"></button>
+    <textarea id="linkOut" rows="3" readonly></textarea>
+    <div class="msg" id="linkMsg"></div>
+
+    <h3 data-en="Change password" data-th="เปลี่ยนรหัสผ่าน"></h3>
+    <input type="email" id="cpE" placeholder="email" style="margin-bottom:6px">
+    <input type="password" id="cpP" placeholder="admin password" style="margin-bottom:6px">
+    <input type="text" id="cpN" placeholder="new teacher password">
+    <div class="row" style="justify-content:flex-end;margin-top:8px"><button class="btn q" id="cpBtn" data-en="Change" data-th="เปลี่ยน"></button></div>
+    <div class="msg" id="cpMsg"></div>
+
+    <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn q" data-close data-en="Close" data-th="ปิด"></button></div>
+  </div>
+ </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+var LS={get:function(k){try{return localStorage.getItem(k)}catch(e){return null}},set:function(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+var DEF_PW="9;5:4*5'", ADMIN_E='rossumont@gmail.com', ADMIN_P='LhaMoAPL9545=';
+function normQ(s){return String(s).replace(/[‘’‚‛`´]/g,"'").trim()}
+
+var CODES=['BP23','BP24','BP25','BP26','BP27','BP28'];
+var DEF={B:0.0645,m:166.35,L:[2.2,4.2,3.2,1.2,6.4,8.4],hid:[0,0,0,0,1,0],nz:1};
+var S=JSON.parse(JSON.stringify(DEF));
+var fromLink=false;
+
+// load settings: link token > teacher saved > default
+function decodeTok(t){try{t=t.replace(/-/g,'+').replace(/_/g,'/');while(t.length%4)t+='=';return JSON.parse(decodeURIComponent(escape(atob(t))))}catch(e){return null}}
+function encodeTok(o){return btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
+function merge(o){if(!o)return;if(isFinite(o.B))S.B=+o.B;if(isFinite(o.m))S.m=+o.m;if(Array.isArray(o.L)&&o.L.length===6)S.L=o.L.map(Number);if(Array.isArray(o.hid)&&o.hid.length===6)S.hid=o.hid.map(function(x){return x?1:0});if(o.nz!=null)S.nz=o.nz?1:0}
+var qs=new URLSearchParams(location.search);
+if(qs.get('k')){var d=decodeTok(qs.get('k'));if(d){merge(d);fromLink=true}}
+if(!fromLink){try{merge(JSON.parse(LS.get('mfl_set')||'null'))}catch(e){}}
+
+// state
+var lang='en', bi=1, rp=0, on=false, dir=1, tare=0;
+var IMIN=0, IMAX=10.00;
+var dispM=S.m, dispI=0;
+
+// ---------- language ----------
+function applyLang(){
+  document.querySelectorAll('[data-en]').forEach(function(el){el.textContent=el.getAttribute('data-'+lang)});
+  document.documentElement.lang=lang;
+  drawBoard();
+}
+document.getElementById('langBtn').onclick=function(){lang=lang==='en'?'th':'en';applyLang()};
+
+// ---------- chips ----------
+var bc=document.getElementById('boardChips'), rc=document.getElementById('rChips');
+CODES.forEach(function(c,i){var b=document.createElement('button');b.className='chip';b.textContent=c;b.onclick=function(){bi=i;refreshChips();drawBoard();updWires()};bc.appendChild(b)});
+var iSl=document.getElementById('iSl');function onSl(){rp=iSl.value/1000;iSl.style.setProperty('--p',(rp*100)+'%');updSlider()}iSl.addEventListener('input',onSl);
+function refreshChips(){
+  [].forEach.call(bc.querySelectorAll('.chip'),function(b,i){b.classList.toggle('on',i===bi)});
+}
+
+// ---------- drawing ----------
+var NS='http://www.w3.org/2000/svg', PX=30, CX=550;
+function el(tag,attr,parent,txt){var e=document.createElementNS(NS,tag);for(var k in attr)e.setAttribute(k,attr[k]);if(txt!=null)e.textContent=txt;if(parent)parent.appendChild(e);return e}
+var coil=document.getElementById('coil');
+for(var x=46;x<=242;x+=7)el('line',{x1:x,y1:264,x2:x+4,y2:304},coil);
+var bf=document.getElementById('bfield');
+[372,414].forEach(function(y){for(var x=432;x<=672;x+=40){el('circle',{cx:x,cy:y,r:7},bf);el('path',{d:'M'+(x-5)+' '+(y-5)+'L'+(x+5)+' '+(y+5)+'M'+(x+5)+' '+(y-5)+'L'+(x-5)+' '+(y+5)},bf)}});
+var pads={l:0,r:0};
+function drawBoard(){
+  var g=document.getElementById('board');while(g.firstChild)g.removeChild(g.firstChild);
+  var L=S.L[bi], w=L*PX, x0=CX-w/2, x1=CX+w/2, bw=Math.max(w+56,170), bx=CX-bw/2;
+  el('rect',{x:bx,y:148,width:bw,height:272,rx:6,fill:'#1F6B45',stroke:'#2F8A5C','stroke-width':2},g);
+  el('rect',{x:CX-30,y:140,width:60,height:14,rx:3,fill:'#56687E'},g);
+  var tr={fill:'none',stroke:'#D9A441','stroke-width':4,'stroke-linejoin':'round'};
+  el('path',{d:'M'+x0+' 178 L'+x0+' 400 L'+x1+' 400 L'+x1+' 178'},g).setAttribute('style','');
+  var p=g.lastChild;for(var k in tr)p.setAttribute(k,tr[k]);
+  el('rect',{x:x0-8,y:166,width:16,height:14,rx:3,fill:'#E8C26A'},g);
+  el('rect',{x:x1-8,y:166,width:16,height:14,rx:3,fill:'#E8C26A'},g);
+  el('text',{x:CX,y:232,'text-anchor':'middle',fill:'#EDE8DC','font-size':22,'font-weight':700},g,CODES[bi]);
+  el('text',{x:CX,y:262,'text-anchor':'middle',fill:'#CFE9DA','font-size':16},g,'L = '+(S.hid[bi]?'?':L.toFixed(1)+' cm'));
+  pads.l=x0;pads.r=x1;
+  var f=document.getElementById('flow');f.setAttribute('x1',x0);f.setAttribute('x2',x1);
+  updWires();
+}
+function sliderX(){return 44+rp*196}
+function updSlider(){document.getElementById('slider').setAttribute('transform','translate('+sliderX()+',0)');updWires()}
+function updWires(){
+  var sx=sliderX();
+  document.getElementById('wR1').setAttribute('d','M92 530 C92 470 20 420 38 300');
+  document.getElementById('wR2').setAttribute('d','M'+sx+' 238 C'+sx+' 150 '+(pads.l-120)+' 120 '+pads.l+' 168');
+  document.getElementById('wB').setAttribute('d','M192 530 C320 600 790 590 790 330 C790 190 '+(pads.r+60)+' 120 '+pads.r+' 168');
+}
+
+// ---------- physics ----------
+function current(){if(!on)return 0;return IMIN+(IMAX-IMIN)*rp}
+function deltaM(I){return dir*I*(S.L[bi]/100)*S.B/9.80665*1000} // grams
+function rnd(){return (Math.random()+Math.random()+Math.random()-1.5)}
+
+var scaleTxt=document.getElementById('scaleTxt'), amm=document.getElementById('amm'), led=document.getElementById('led'), flow=document.getElementById('flow');
+var lastT=performance.now(), lastShow=0;
+function loop(t){
+  var dt=Math.min(.1,(t-lastT)/1000);lastT=t;
+  var I=current(), tgt=S.m+deltaM(I);
+  var k=1-Math.exp(-dt/0.35);
+  dispM+= (tgt-dispM)*k; dispI+=(I-dispI)*(1-Math.exp(-dt/0.12));
+  if(t-lastShow>260){
+    lastShow=t;
+    var nm=S.nz?rnd()*0.006:0, ni=(S.nz&&dispI>0.01)?rnd()*0.004:0;
+    var mv=dispM-tare+nm; if(Math.abs(mv)<0.004)mv=0;
+    scaleTxt.textContent=mv.toFixed(2);
+    amm.textContent=Math.max(0,dispI+ni).toFixed(2);
+  }
+  led.setAttribute('fill',on?'#7FD4A8':'#33424F');
+  flow.setAttribute('opacity',I>0?1:0);
+  flow.classList.toggle('rev',dir<0);
+  requestAnimationFrame(loop);
+}
+
+// ---------- controls ----------
+var pwrBtn=document.getElementById('pwrBtn'), dirBtn=document.getElementById('dirBtn');
+pwrBtn.onclick=function(){on=!on;pwrBtn.classList.toggle('on',on);pwrBtn.lastElementChild.setAttribute('data-en',on?'OFF':'ON');pwrBtn.lastElementChild.setAttribute('data-th',on?'ปิด':'เปิด');pwrBtn.lastElementChild.textContent=pwrBtn.lastElementChild.getAttribute('data-'+lang)};
+dirBtn.onclick=function(){dir=-dir;document.getElementById('dirArr').textContent=dir>0?'I →':'I ←';var s=document.getElementById('dirTxt');s.setAttribute('data-en',dir>0?'Right':'Left');s.setAttribute('data-th',dir>0?'ขวา':'ซ้าย');s.textContent=s.getAttribute('data-'+lang)};
+
+
+// ---------- teacher ----------
+var ov=document.getElementById('ov');
+function getPw(){return LS.get('mfl_pw')||DEF_PW}
+document.getElementById('tBtn').onclick=function(){document.getElementById('lockView').style.display='';document.getElementById('tView').style.display='none';document.getElementById('pwIn').value='';document.getElementById('pwMsg').textContent='';ov.classList.add('show');setTimeout(function(){document.getElementById('pwIn').focus()},50)};
+[].forEach.call(document.querySelectorAll('[data-close]'),function(b){b.onclick=function(){ov.classList.remove('show')}});
+function tryPw(){
+  if(normQ(document.getElementById('pwIn').value)===normQ(getPw())){document.getElementById('lockView').style.display='none';document.getElementById('tView').style.display='';fillTeacher()}
+  else document.getElementById('pwMsg').textContent=lang==='en'?'Wrong password':'รหัสผ่านไม่ถูกต้อง';
+}
+document.getElementById('pwGo').onclick=tryPw;
+document.getElementById('pwIn').addEventListener('keydown',function(e){if(e.key==='Enter')tryPw()});
+
+function fillAnswer(){
+  document.getElementById('ansB').textContent=S.B.toFixed(4);
+  var tb=document.getElementById('ansT');tb.innerHTML='';
+  var I=current();
+  CODES.forEach(function(c,i){var tr=document.createElement('tr');
+    var dm=I*(S.L[i]/100)*S.B/9.80665*1000;
+    tr.innerHTML='<td>'+c+(S.hid[i]?' *':'')+'</td><td>'+S.L[i].toFixed(1)+'</td><td>'+(S.L[i]/100*S.B).toFixed(5)+'</td><td>'+(i===bi&&I>0?(dir>0?'+':'−')+dm.toFixed(2):'—')+'</td>';tb.appendChild(tr)});
+}
+function fillTeacher(){
+  fillAnswer();
+  document.getElementById('sB').value=S.B;document.getElementById('sM').value=S.m;document.getElementById('sN').checked=!!S.nz;
+  var st=document.getElementById('setT');st.innerHTML='';
+  CODES.forEach(function(c,i){var tr=document.createElement('tr');
+    tr.innerHTML='<td>'+c+'</td><td><input type="number" step="0.1" data-l="'+i+'" value="'+S.L[i]+'"></td><td><input type="checkbox" data-h="'+i+'" style="width:18px;height:18px"'+(S.hid[i]?' checked':'')+'></td>';st.appendChild(tr)});
+  document.getElementById('linkOut').value='';document.getElementById('linkMsg').textContent='';document.getElementById('cpMsg').textContent='';
+}
+function readForm(){
+  var B=parseFloat(document.getElementById('sB').value), m=parseFloat(document.getElementById('sM').value);
+  if(isFinite(B)&&B>0)S.B=B; if(isFinite(m)&&m>0)S.m=m;
+  S.nz=document.getElementById('sN').checked?1:0;
+  [].forEach.call(document.querySelectorAll('[data-l]'),function(inp){var v=parseFloat(inp.value);if(isFinite(v)&&v>0&&v<=9)S.L[+inp.getAttribute('data-l')]=v});
+  [].forEach.call(document.querySelectorAll('[data-h]'),function(inp){S.hid[+inp.getAttribute('data-h')]=inp.checked?1:0});
+  LS.set('mfl_set',JSON.stringify(S));
+  dispM=S.m+deltaM(current());tare=0;
+  drawBoard();fillTeacher();
+}
+document.getElementById('applyBtn').onclick=readForm;
+document.getElementById('rndB').onclick=function(){document.getElementById('sB').value=(0.040+Math.random()*0.050).toFixed(4)};
+document.getElementById('linkBtn').onclick=function(){
+  readForm();
+  var msg=document.getElementById('linkMsg'), out=document.getElementById('linkOut');
+  var base=location.href.split('?')[0].split('#')[0];
+  var url=base+'?k='+encodeTok(S);
+  out.value=url;
+  if(!/^https?:$/.test(location.protocol)||location.origin==='null'){msg.className='msg warn';msg.textContent=lang==='en'?'Link works only after the file is on a website (e.g. GitHub Pages).':'ลิงก์ใช้ได้เมื่อไฟล์อยู่บนเว็บแล้ว (เช่น GitHub Pages)';return}
+  var done=function(){msg.className='msg ok';msg.textContent=lang==='en'?'Copied':'คัดลอกแล้ว'};
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(url).then(done,function(){out.select();try{document.execCommand('copy');done()}catch(e){}});
+  else{out.select();try{document.execCommand('copy');done()}catch(e){}}
+};
+document.getElementById('cpBtn').onclick=function(){
+  var e=document.getElementById('cpE').value.trim().toLowerCase(), p=document.getElementById('cpP').value, n=normQ(document.getElementById('cpN').value), msg=document.getElementById('cpMsg');
+  if(e!==ADMIN_E||p!==ADMIN_P){msg.className='msg warn';msg.textContent=lang==='en'?'Email or admin password incorrect':'อีเมลหรือรหัสผู้ดูแลไม่ถูกต้อง';return}
+  if(n.length<1){msg.className='msg warn';msg.textContent=lang==='en'?'Enter a new password':'กรอกรหัสผ่านใหม่';return}
+  LS.set('mfl_pw',n);msg.className='msg ok';msg.textContent=lang==='en'?'Password changed (this device)':'เปลี่ยนรหัสแล้ว (เฉพาะเครื่องนี้)';
+  document.getElementById('cpP').value='';document.getElementById('cpN').value='';
+};
+
+// init
+refreshChips();updSlider();applyLang();
+requestAnimationFrame(loop);
+// try fullscreen-like on first tap is not forced; layout already fills the screen
+})();
+</script>
+</body>
+</html>
